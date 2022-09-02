@@ -11,7 +11,6 @@ class PayloadParser{
         virtual std::string getParsedPayload()=0;
     protected:
     private:
-        std::string payload;
 };
 
 #endif // PAYLOADPARSER_H
