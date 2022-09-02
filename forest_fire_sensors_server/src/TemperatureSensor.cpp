@@ -2,17 +2,16 @@
 #include "limits.h"
 #include <cstdlib>
 
-
-
-float getTemperature(){
+float TemperatureSensor::getTemperature(){
     return 1.8;
 }
 
-void parseSetPayload(std::string rawPayload){
-int o = 0;
+void TemperatureSensor::parseSetPayload(std::string rawPayload)
+{
+    TemperatureSensor::payload = rawPayload;
 }
 
-std::string getParsedPayload(){
+std::string TemperatureSensor::getParsedPayload(){
     return "ASD";
 }
 

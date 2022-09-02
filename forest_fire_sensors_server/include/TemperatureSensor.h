@@ -3,10 +3,14 @@
 #include <string>
 #include <PayloadParser.h>
 
+
 class TemperatureSensor : public PayloadParser{
 
     public:
         float getTemperature();
+        virtual void parseSetPayload(std::string rawPayload);
+        //This should be generic class type
+        virtual std::string getParsedPayload();
 
         /*
         void setTemperature(float newTemperaturReading);
@@ -15,6 +19,7 @@ class TemperatureSensor : public PayloadParser{
     protected:
 
     private:
+        std::string payload;
         float celsius_temp;
         std::string timestamp;
 };
