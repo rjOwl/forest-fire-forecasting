@@ -6,9 +6,9 @@ class NetworkClient
 {
     public:
         NetworkClient();
-        void establishCon();
-        void recieveSensorData();
-        void sendData();
+        virtual void establishCon()=0;
+        virtual void recieveSensorData()=0;
+        virtual void sendData()=0;
 
     protected:
 
