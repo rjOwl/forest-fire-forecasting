@@ -30,7 +30,8 @@ string generateRandomPayload()
 }
 
 void sendEachSecond(TemperatureSensor *temperatureSensor, SocketClient *con,
-int *clients, int *sd){
+                        int *clients, int *sd)
+{
     while(true){
         std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // sleep for 1 second
         temperatureSensor->parsePayload(generateRandomPayload());
@@ -40,6 +41,8 @@ int *clients, int *sd){
         cout<<"Current temp: "<<temperatureSensor->getTemp()<<"\n";
         cout<<"Payload: "<<generateRandomPayload()<<"\n";
         con->sendData(clients, sd, temp);
+        std::fill( std::begin( temp ), std::end( temp ), 0 );
+
     }
 }
 
@@ -155,8 +158,8 @@ int main(){
                 }
             }
         }
-        thread t1(sendEachSecond, &temperatureSensor, &con, clients, &sd);
-//        sendEachSecond(&temperatureSensor, &con, clients, &sd);
+//        thread t1(sendEachSecond, &temperatureSensor, &con, clients, &sd);
+        sendEachSecond(&temperatureSensor, &con, clients, &sd);
    }
 
 
