@@ -33,18 +33,13 @@ class SocketClient : public INetworkClient{
 
         SocketClient(int port);
 //        ~SocketClient();
-        void getInstance();
-        int init();
         int startListening();
-        int init(int port);
 
         int establishCon();
         void recieveSensorData();
         void sendData();
         void sendData(int *, int *, char *, int*);
-        void sendData(int *, int *, char* );
         int getPort();
-        void logic();
 
     protected:
 
