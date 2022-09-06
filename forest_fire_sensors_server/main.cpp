@@ -238,21 +238,7 @@ int main()
             }
         }
    }
-    // Recieve new clients and add them to the client list
-//    thread t0(addClients, &temperatureSensor, &con, clients, &sd, &connected_clients, &sock, &max_sd, &activity,
-//                     &new_socket, &addrlen, &client_established);
-//                     t0.join();
-//    thread t0(sendEachSecond, &temperatureSensor, &con, clients, &sd, &connected_clients);
 
-//    t1.join();
-
-//    threads.push_back(thread(addClients, &temperatureSensor, &con, clients, &sd, &connected_clients, &sock, &max_sd, &activity,
-//                 &new_socket, &addrlen, &client_established));
-//    threads.push_back(thread(sendEachSecond, &temperatureSensor, &con, clients, &sd, &connected_clients));
-
-//    for(auto& thread : threads){
-//        thread.join();
-//    }
     return 0;
 }
 
