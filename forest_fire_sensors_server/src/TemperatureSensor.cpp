@@ -2,17 +2,30 @@
 #include "limits.h"
 #include <cstdlib>
 
-float TemperatureSensor::getTemperature(){
-    return 1.8;
+
+string TemperatureSensor::getParsedPayload(){}
+
+
+void TemperatureSensor::parsePayload(string rawPayload) {
+    size_t pos_start = 0, pos_end, delim_len = TemperatureSensor::delimiter.length();
+    string token;
+
+    while ((pos_end = rawPayload.find (TemperatureSensor::delimiter, pos_start)) != string::npos) {
+        token = rawPayload.substr (pos_start, pos_end - pos_start);
+        pos_start = pos_end + delim_len;
+        TemperatureSensor::parsedPayload.push_back(token);
+    }
+    TemperatureSensor::parsedPayload.push_back (rawPayload.substr (pos_start));
+    TemperatureSensor::timestamp = TemperatureSensor::parsedPayload[1];
+    TemperatureSensor::temp = TemperatureSensor::parsedPayload[2];
 }
 
-void TemperatureSensor::parseSetPayload(std::string rawPayload)
-{
-    TemperatureSensor::payload = rawPayload;
+string TemperatureSensor::getTemp(){
+    return TemperatureSensor::temp;
 }
 
-std::string TemperatureSensor::getParsedPayload(){
-    return "ASD";
+string TemperatureSensor::getTimestamp(){
+    return TemperatureSensor::timestamp;
 }
 
 
