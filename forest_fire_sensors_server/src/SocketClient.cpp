@@ -25,7 +25,4 @@ void SocketClient::sendData(int *clients, int *sd, char* data, int*connected_cli
         if(*connected_clients>0)
             send(*sd, data, strlen(data), 0);
     }
-
 }
-
-

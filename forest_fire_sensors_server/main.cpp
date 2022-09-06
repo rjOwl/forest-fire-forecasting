@@ -87,8 +87,9 @@ int main()
 
     thread t1(sendEachSecond, &temperatureSensor, &con, clients, &sd, &connected_clients);
     char *msg= "Connection established to server!\n";
+    int valread, buffer[100];
     cout<<"Waiting clients...";
- // Recieve new clients and add them to the client list
+    // Recieve new clients and add them to the client list
     while(true)
     {
         FD_ZERO(&(con.readfds));
@@ -158,7 +159,33 @@ int main()
                 }
             }
         }
-   }
+
+        //else its some IO operation on some other socket
+        for (int i = 0; i < MAX_CLIENTS; i++)
+        {
+            sd = clients[i];
+
+            if (FD_ISSET( sd , &(con.readfds)))
+            {
+                //Check if it was for closing , and also read the
+                //incoming message
+                if ((valread = read( sd , buffer, 100)) == 0)
+                {
+                    //Somebody disconnected , get his details and print
+//                    getpeername(sd , (struct sockaddr*)&address , \
+//                        (socklen_t*)&addrlen);
+//                    printf("Host disconnected , ip %s , port %d \n" ,
+//                          inet_ntoa(address.sin_addr) , ntohs(address.sin_port));
+
+                    //Close the socket and mark as 0 in list for reuse
+                    close( sd );
+                    clients[i] = 0;
+                    cout<<"Client disconnected!\n";
+                }
+            }
+        }
+    }
+
 
     return 0;
 }
