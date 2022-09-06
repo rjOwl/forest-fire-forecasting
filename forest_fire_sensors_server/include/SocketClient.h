@@ -46,16 +46,6 @@ class SocketClient : public INetworkClient{
         int getPort();
         void logic();
 
- //       void setClientSocketList()=0;
-//        char *message = "ECHO Daemon v1.0 \r\n";
-//        int opt = TRUE, port=8000,
-//            master_socket , addrlen , new_socket , client_socket[30],
-//                max_clients = 30 , activity, i , valread , sd, sd2,
-//            max_sd;
-//        struct sockaddr_in address;
-  //      char buffer[1025];  //data buffer of 1K
-//        fd_set readfds;
-
     protected:
 
     private:
