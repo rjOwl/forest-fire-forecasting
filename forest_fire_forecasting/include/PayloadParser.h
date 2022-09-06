@@ -6,7 +6,7 @@ class PayloadParser
 {
     public:
         PayloadParser();
-        virtual receivePayload() = 0;
+        virtual void receivePayload() = 0;
 
     protected:
 
