@@ -1,17 +1,16 @@
 #ifndef PAYLOADRECEIVER_H
 #define PAYLOADRECEIVER_H
 #include <string>
+using namespace std;
 
-// Abstract
 class PayloadReceiver{
     public:
-        void receiveSensorPayload();
-        std::string getPayload();
-
+        void receiveSensorPayload(string);
+        string getPayload();
     protected:
 
     private:
-        std::string payload;
+        string rawPayload;
 };
 
 #endif // PAYLOADRECEIVER_H
