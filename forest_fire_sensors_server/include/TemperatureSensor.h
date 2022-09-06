@@ -1,16 +1,23 @@
 #ifndef TEMPERATURESENSOR_H
 #define TEMPERATURESENSOR_H
+
+#include "IPayloadParser.h"
 #include <string>
-#include <PayloadParser.h>
+#include <sstream>
+#include <vector>
 
-
-class TemperatureSensor : public PayloadParser{
+using namespace std;
+class TemperatureSensor : public IPayloadParser{
 
     public:
-        float getTemperature();
-        virtual void parseSetPayload(std::string rawPayload);
+        // each sensor sends data differently so each parser will have different implementation
+        void parsePayload(string);
         //This should be generic class type
-        virtual std::string getParsedPayload();
+        string getTemp();
+        string getTimestamp();
+
+        //This should be generic class type
+        string getParsedPayload();
 
         /*
         void setTemperature(float newTemperaturReading);
@@ -19,9 +26,9 @@ class TemperatureSensor : public PayloadParser{
     protected:
 
     private:
-        std::string payload;
+        vector<string> parsedPayload;
+        string temp, timestamp, delimiter=",";
         float celsius_temp;
-        std::string timestamp;
 };
 
 #endif // TEMPERATURESENSOR_H
