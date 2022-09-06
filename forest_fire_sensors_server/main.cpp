@@ -3,7 +3,6 @@
 #include "TemperatureSensor.h"
 #include "PayloadReceiver.h"
 #include <chrono>
-#include <thread>
 
 #include <string>
 #include <cstring>
@@ -17,7 +16,7 @@
 #define PORT 8888
 #include <chrono>
 #include <thread>
-
+#include <vector>
 
 using namespace std;
 
@@ -30,31 +29,108 @@ string generateRandomPayload()
 }
 
 void sendEachSecond(TemperatureSensor *temperatureSensor, SocketClient *con,
-                        int *clients, int *sd)
+                    int *clients, int *sd, int* connected_clients)
 {
-    while(true){
+    while(true)
+    {
         std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // sleep for 1 second
         temperatureSensor->parsePayload(generateRandomPayload());
         char temp[3];
-        strcpy(temp, temperatureSensor->getTemp().c_str());
-        cout<<"Current temp: "<<temp<<"\n";
-        cout<<"Current temp: "<<temperatureSensor->getTemp()<<"\n";
-        cout<<"Payload: "<<generateRandomPayload()<<"\n";
-        con->sendData(clients, sd, temp);
-        std::fill( std::begin( temp ), std::end( temp ), 0 );
-
+        if(*connected_clients>0){
+            strcpy(temp, temperatureSensor->getTemp().c_str());
+            cout<<"Current temp: "<<temp<<"\n";
+            cout<<"Current temp: "<<temperatureSensor->getTemp()<<"\n";
+            cout<<"Payload: "<<generateRandomPayload()<<"\n";
+            con->sendData(clients, sd, temp, connected_clients);
+            std::fill( std::begin( temp ), std::end( temp ), 0 );
+        }
     }
 }
-
-int main(){
-    int clients[MAX_CLIENTS], sock=-1, port = 5000, addrlen, activity,
-                              max_sd, sd, new_socket, connected_clients=0;
+void addClients(TemperatureSensor *temperatureSensor, SocketClient *con,
+                    int *clients, int *sd, int* connected_clients, int *sock, int *max_sd, int *activity,
+                     int*new_socket, int* addrlen, int*client_established)
+{
     char *msg= "Connection established to server!\n";
-//    struct sockaddr_in address;
-    //fd_set readfds;
-//    int valread;
-  //  char buffer[1024];
 
+    while(true)
+    {
+        cout<<"Waiting for clients to connect\n";
+        FD_ZERO(&(con->readfds));
+
+        //add master socket to set
+        FD_SET(*sock, &(con->readfds));
+        *max_sd = *sock;
+
+        //add child sockets to set
+        for ( int i = 0 ; i < MAX_CLIENTS ; i++)
+        {
+            //socket descriptor
+            *sd = clients[i];
+
+            //if valid socket descriptor then add to read list
+            if(*sd > 0)
+                FD_SET( *sd, &(con->readfds));
+
+            //highest file descriptor number, need it for the select function
+            if(*sd > *max_sd)
+                *max_sd = *sd;
+        }
+
+
+        //wait for an activity on one of the sockets , timeout is NULL ,
+        //so wait indefinitely
+        *activity = select( *max_sd + 1, &(con->readfds), NULL, NULL, NULL);
+        // listen for incoming connections and add them to the array
+        if ((*activity < 0) && (errno!=EINTR))
+        {
+            printf("select error");
+        }
+
+        //If something happened on the master socket ,
+        //then its an incoming connection
+        if (FD_ISSET(*sock, &(con->readfds)))
+        {
+            if ((*new_socket = accept(*sock,
+                                        (struct sockaddr *)&(con->address), (socklen_t*)&(*addrlen)))<0)
+            {
+                perror("accept");
+                exit(EXIT_FAILURE);
+            }
+
+            //inform user of socket number - used in send and receive commands
+            cout<<"New connection, socket fd is: "<<*new_socket<<", ip is:"<< inet_ntoa(con->address.sin_addr)<<
+                ", port: "<<ntohs(con->address.sin_port)<<" \n";
+
+            //send new connection greeting message
+            if( send(*new_socket, msg, strlen(msg), 0) != strlen(msg) )
+            {
+                perror("send");
+            }
+
+            cout<<"Welcome message sent successfully"<<"\n";
+
+            //add new socket to array of sockets
+            for (int i = 0; i < MAX_CLIENTS; i++)
+            {
+                //if position is empty
+                if( clients[i] == 0 )
+                {
+                    clients[i] = *new_socket;
+                    *connected_clients++;
+                    *client_established++;
+                    cout<<"Adding new client list of sockets as: "<< i<<"\n";
+                    cout<<"Current connected clients: "<< *connected_clients<<"\n";
+                    break;
+                }
+            }
+        }
+    }
+}
+int main()
+{
+    int clients[MAX_CLIENTS], sock=-1, port = 5001, addrlen, activity,
+                              max_sd, sd, new_socket, connected_clients=0, client_established=0;
+    std::vector<std::thread> threads;
     PayloadReceiver payRec;
     SocketClient con(port);
     TemperatureSensor temperatureSensor;
@@ -88,7 +164,10 @@ int main(){
     }
     addrlen = sizeof(con.address);
 
-    // Recieve new clients and add them to the client list
+    thread t1(sendEachSecond, &temperatureSensor, &con, clients, &sd, &connected_clients);
+    char *msg= "Connection established to server!\n";
+    cout<<"Waiting clients...";
+ // Recieve new clients and add them to the client list
     while(true)
     {
         FD_ZERO(&(con.readfds));
@@ -158,11 +237,22 @@ int main(){
                 }
             }
         }
-//        thread t1(sendEachSecond, &temperatureSensor, &con, clients, &sd);
-        sendEachSecond(&temperatureSensor, &con, clients, &sd);
    }
+    // Recieve new clients and add them to the client list
+//    thread t0(addClients, &temperatureSensor, &con, clients, &sd, &connected_clients, &sock, &max_sd, &activity,
+//                     &new_socket, &addrlen, &client_established);
+//                     t0.join();
+//    thread t0(sendEachSecond, &temperatureSensor, &con, clients, &sd, &connected_clients);
 
+//    t1.join();
 
+//    threads.push_back(thread(addClients, &temperatureSensor, &con, clients, &sd, &connected_clients, &sock, &max_sd, &activity,
+//                 &new_socket, &addrlen, &client_established));
+//    threads.push_back(thread(sendEachSecond, &temperatureSensor, &con, clients, &sd, &connected_clients));
+
+//    for(auto& thread : threads){
+//        thread.join();
+//    }
     return 0;
 }
 
