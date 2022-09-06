@@ -1,11 +1,11 @@
 #include "PayloadReceiver.h"
 
-void PayloadReceiver::receiveSensorPayload()
+void PayloadReceiver::receiveSensorPayload(string rawPayload)
 {
-    PayloadReceiver::payload = "27, 9/2/2022, 26.8";
+    PayloadReceiver::rawPayload = rawPayload;//"27, 9/2/2022, 26.8";
 }
 
-std::string PayloadReceiver::getPayload()
+string PayloadReceiver::getPayload()
 {
-    return PayloadReceiver::payload;
+    return PayloadReceiver::rawPayload;
 }
