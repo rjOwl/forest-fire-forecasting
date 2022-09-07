@@ -16,8 +16,8 @@ jobs:
     - run: ls
     - run: pwd
     - name: make client
-#       working-directory: forest-fire-forecasting/..
+      working-directory: forest_fire_forecasting
       run: make client
     - name: client
-#       working-directory: forest-fire-forecasting/..
+      working-directory: forest_fire_forecasting
       run: ./client
