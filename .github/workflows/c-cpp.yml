@@ -13,9 +13,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - run: ls
+    - run: pwd
     - name: make client
-      working-directory: forest-fire-forecasting/..
+#       working-directory: forest-fire-forecasting/..
       run: make client
     - name: client
-      working-directory: forest-fire-forecasting/..
+#       working-directory: forest-fire-forecasting/..
       run: ./client
