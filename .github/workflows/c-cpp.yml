@@ -18,6 +18,7 @@ jobs:
     - name: make client
       working-directory: forest_fire_forecasting
       run: make client
-    - name: client
-      working-directory: forest_fire_forecasting
-      run: ./client
+#       running won't work since server is not running /deployed
+#     - name: client
+#       working-directory: forest_fire_forecasting
+#       run: ./client
