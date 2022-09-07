@@ -1,11 +1,11 @@
 #include "ILogger.h"
 
-ILogger::ILogger()
-{
-    //ctor
-}
+//ILogger::ILogger()
+//{
+    ////ctor
+//}
 
-ILogger::~ILogger()
-{
-    //dtor
-}
+//ILogger::~ILogger()
+//{
+    ////dtor
+//}
