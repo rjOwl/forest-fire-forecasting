@@ -1,4 +1,6 @@
+forest_fire_sensors_server
 forest_fire_sensors_server/*
+client
 # Prerequisites
 *.d
 
