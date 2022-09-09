@@ -5,14 +5,15 @@
 class LoggerFactory
 {
     public:
-        LoggerFactory();
+        LoggerFactory(string);
         virtual ~LoggerFactory();
-//        ILogger getLogger(string);
+        ILogger* getLogger();
+
 
     protected:
 
     private:
-    string env;
+        ILogger* logger;
 };
 
 #endif // LOGGERFACTORY_H

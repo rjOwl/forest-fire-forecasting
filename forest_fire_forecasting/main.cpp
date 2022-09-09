@@ -1,10 +1,10 @@
 #include <iostream>
 #include "SocketClient.h"
 #include "TemperatureSensor.h"
-#include <chrono>
-#include <thread>
+#include "ILogger.h"
+#include "LoggerFactory.h"
+#include "TempOperations.h"
 
-#include <string>
 #include <cstring>
 #include <unistd.h>   //close
 #include <arpa/inet.h>    //close
@@ -14,35 +14,40 @@
 #define TRUE   1
 #define FALSE  0
 #define PORT 8888
+
 #include <chrono>
 #include <thread>
 
 
 using namespace std;
 
-string generateRandomPayload()
+void printEachXSecond(int milliseconds, TempOperations *tempOp)
 {
-    srand(time(0));
-    int stime = rand();
-    int temp = (rand() % 100) + 20;
-    return "34," + std::to_string(stime)+","+std::to_string(temp);
-}
+    string type = "console";
+    LoggerFactory* loggerFactory = new LoggerFactory(type);
+    ILogger* logger = loggerFactory->getLogger();
 
-void sendEachSecond(TemperatureSensor *temperatureSensor, SocketClient *con,
-                        int *clients, int *sd)
-{
     while(true){
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // sleep for 1 second
+        std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds)); // sleep for 1 second
+        tempOp->setTempSum(tempOp->getCurrTemp());
+        logger->log("Average: "+to_string(tempOp->calcAvgTemp()));
+        logger->log("Accumulation: "+to_string(tempOp->calcAccumulatedTemp()));
+        cout<<"============================="<<"\n";
     }
 }
 
 int main(){
-    int connection_status=-1, sock=-1, port = 5000, addrlen, activity,
+    int connection_status=-1, sock=-1, port = 5001, addrlen, activity,
                               max_sd, sd, new_socket, connected_clients=0;
+
+    int valread=0;
+    char buffer[20] = { 0 };
+    int milliseconds=5000;
 
     //PayloadReceiver payRec;
     SocketClient con(port);
-    //TemperatureSensor temperatureSensor;
+    TempOperations tempOp;
+
 
     sock=con.establishCon();
     if(sock == 0)
@@ -65,23 +70,18 @@ int main(){
         return -4;
     }
 
-    int valread=0;    char buffer[1024] = { 0 };
+    thread t1(printEachXSecond, milliseconds, &tempOp);
+    cout<<"Waiting server reading...\n";
     /* listen on port */
-    while(true)
-    {
-        //wait for an activity on one of the sockets , timeout is NULL ,
-        //so wait indefinitely
-        if(valread==0){
-            valread = read(con.sock, buffer, 1024);
-            cout<<buffer<<"\n";
-
-            std::fill( std::begin( buffer ), std::end( buffer), 0 );
-//            std::fill(buffer.begin(),buffer.end(),0);
-            //std::fill_n(buffer, 1024, 0);
+    while(true){
+        valread = read(con.sock, buffer, 20);
+        if(valread == 0){
+            cout<<"Server disconnected... :(\n";
+            return -1;
         }
-        valread=0;
+        tempOp.setCurrTemp(std::atof(buffer));
+        tempOp.setTempCount();
+        std::fill( std::begin( buffer ), std::end( buffer), 0 );
     }
-
-
     return 0;
 }
